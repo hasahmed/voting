@@ -11,28 +11,47 @@ app.locals.entries = entries;
 app.use(bodyParser.urlencoded({ extended: false })); 
 
 
-app.get("/", function(request, response) {
- response.render("index");
+app.get("/", function(req, res) {
+ res.render("main");
 });
-app.get("/new-entry", function(request, response) {
- response.render("new-entry");
+app.get("/new-entry", function(req, res) {
+ res.render("new-entry");
 });
-app.post("/new-entry", function(request, response) {
- if (!request.body.title || !request.body.body) {
- response.status(400).send("Entries must have a title and a body.");
+app.get('results', function(req, res){
+    res.render('results');
+});
+
+app.post('/', function(req, res){
+    entries.push({
+        vote: req.body.vote,
+        submitted: new Date()
+    })
+    console.log(entries[0].vote);
+    res.render('thanks');
+    return;
+    //test for vim
+});
+
+
+/* this is called when the form is submitted from main.ejs */
+app.post("/new-entry", function(req, res) {
+    console.log("taco", req.body);
+    res.render('main');
+    return;
+ if (!req.body.vote) {
+ res.status(400).send("Error: Page not found.");
  return;
  }
  entries.push({
- title: request.body.title,
- content: request.body.body,
- published: new Date()
+ vote: req.body.vote,
+ submitted: new Date()
  });
- response.redirect("/");
+ res.redirect("/results");
 });
-app.use(function(request, response) {
- response.status(404).render("404");
+app.use(function(req, res) {
+ res.status(404).render("404");
 });
 var port = 32908;
-http.createServer(app).listen(port,function() {
+http.createServer(app).listen(port, function() {
  console.log("Guestbook app started on port " + port);
 });
