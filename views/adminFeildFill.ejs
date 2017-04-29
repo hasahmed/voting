@@ -1,0 +1,18 @@
+<% include header %>
+    <form method='post' action='/adminSubmitPollOps'>
+    <table>
+    <% for(var i = 0; i < entries.numPollOps; i++) { %>
+        <tr>
+            <td> 
+                <p> Poll Option <%= i + 1 %>: </p> 
+            </td>
+            <td>
+                <input type='text' name='pollOp[]'>
+            </td>
+        </tr>
+    <% } %>
+    <br>
+    </table>
+    <input type='submit' name='submit'>
+    </form>
+<% include footer %>

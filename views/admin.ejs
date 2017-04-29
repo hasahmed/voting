@@ -1,3 +1,7 @@
 <% include header %>
-    <p>You are administrator! How does it feel? </p>
+    <p>Enter the number of polling options you would like </p>
+    <form method='post' action='/adminFeildFill'>
+    <input type='number' value='3' name='numPollOps'>
+    <input type='submit' name='submit'>
+    </form>
 <% include footer %>
