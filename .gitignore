@@ -1,4 +1,5 @@
 *.vim
 startmongo
 nodemon
-
+mongo/
+*.txt

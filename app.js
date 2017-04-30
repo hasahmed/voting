@@ -1,31 +1,83 @@
+/* current work status:
+    working on admin submission, and the next screen to make sure
+    that the displayQuestion is displayed, as well as saved to entries
+    */
+
+
+
 // required to start http server
 var http = require("http");
+
+
+
 
 //nodes built in path module. Used for cross platform
 //path construction
 var path = require("path");
+
+
+
 
 /* express is the framework that this application is built on
  chances are that the functions you see in this application are 
  express functions*/
 var express = require("express");
 
+
+
+
 /* mongoose, the thing that lets me talk to mongoDB */
 var mongoose = require('mongoose');
+
+
+
 
 /* bodyParser is a module used for processessing the inputs comming in from
  html. */
 var bodyParser = require("body-parser"); 
 
+
+
+
 /* creation of the actual application. function express() returns an object */
 var app = express();
 
-/* schema: get the predefined schema of how the mongoose data is going to be
- stored */
-var schema = require('./models/schema');
+
+
+// modelsPath: convience for path.resolve(__dirname, 'models)
+var modelsPath = path.resolve(__dirname, 'models');
+
+/* userVoteSchema: this is a schema which represents a users vote, it cheifly
+ contains the users: vote, userID, and pollID
+ the pollID is the poll for which the user is voting. here is what the object looks
+ like:
+    {
+        vote: String,
+        pollID: String,
+    }
+    */
+var userVoteSchema = require(path.resolve(modelsPath,'userVoteSchema'));
+
+
+
+
+
+/* pollSchema represents the meta data of the poll. here is the object:
+   {
+    title: String,
+    displayQuestion: String,
+    options: Array
+    }
+    */
+var pollSchema = require(path.resolve(modelsPath, 'pollSchema'));
+
+
+
 
 /* sets the default path of the view engine */
 app.set("views", path.resolve(__dirname, "views"));
+
+
 
 /* sets the default view engine */
 app.set("view engine", "ejs");
@@ -46,6 +98,10 @@ var entries = {
  to the object entries created above */
 app.locals.entries = entries;
 
+
+
+
+
 /* initialization of the body-parser which reads in form data.
  the 'extended: true' part is required in order to be able
  to handle form inputs being passed as an array without using
@@ -54,14 +110,33 @@ app.locals.entries = entries;
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 
+
+
+
 /* the initial connection to our mongoose server. Tutorial is the 
  database selected for now. Will probably change */
-mongoose.connect('mongodb://silo.cs.indiana.edu:32909/tutorial');
+mongoose.connect('mongodb://silo.cs.indiana.edu:32909/voting');
 
-/* use the schema object we required earlier as our mongo
-  model, its name is test. This will also probably change */
 
-var user = mongoose.model('users', schema);
+
+
+/* 
+    poll1: an instance of a poll for use in testing.
+    will assign it data and save it later.
+ */
+var Poll = mongoose.model('poll', pollSchema);
+
+/*
+poll example:
+var poll1 = new Poll({
+    title: 'Favorite Hot Drink',
+    displayQuestion: 'What is your favorite hot beverage?',
+    options: ['tea', 'coffee', 'hot chocolate']
+});
+*/
+
+
+
 
 
 /* the inital entry point of the application is a get request to root.
@@ -70,6 +145,10 @@ app.get("/", function(req, res) {
  res.render("main");
 });
 
+
+
+
+/* unused i believe. soon to be deleted */
 app.get('/users', function(req, res){
     mongoose.model('users').find(function(err, users){
         res.send(users);
@@ -77,21 +156,43 @@ app.get('/users', function(req, res){
 });
 
 
+
+
 /* load administrator page when a link to administrator is clicked */
 app.get('/admin', function(req, res){
     res.render('admin');
 });
 
+
+
+app.post('adminSaveNewPoll', function(req, res){
+    console.log(req.body);
+    /*
+    var tmp = new Poll({
+        title: req.body.title,
+        displayQuestion: req.body.displayQuestion, 
+        options: req.body.pollOps 
+    });
+    */
+    res.send('done :)');
+    //res.render('home');
+});
+
+
 /* get the post body values coming in from admin page
  the value coming in is named numPollOps and is going
  to be the number of text fields on the next page that is
  loaded numPollOps: number Polling Options */
-app.post('/adminFeildFill', function(req, res){
+app.post('/adminSubmitPollOps', function(req, res){
+    console.log(req.body);
     entries.numPollOps = req.body.numPollOps;
+    entries.pollTitle = req.body.pollTitle;
     console.log(entries.numPollOps);
     res.render('adminFeildFill');
 });
-app.post('/adminSubmitPollOps', function(req, res){
+
+
+app.post('/adminReviewPollOps', function(req, res){
     /* req.body.pollOp is an array containing the names
      of the 'polling options' to be used for the new poll */
     entries.pollOp = req.body.pollOp;

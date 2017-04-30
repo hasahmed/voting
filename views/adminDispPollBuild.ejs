@@ -2,6 +2,7 @@
     <p> This is what your poll will look like:
         <br>
         Press Save to save this poll.</p>
+        <h1> <%= entries.displayQuestion %> </h1>
     <form method='post' action='/adminSaveNewPoll'>
         <% for(var i = 0; i < entries.pollOp.length; i++) { %>
             <input type='radio' name='vote' value=<%= entries.pollOp[i]%> > <%= entries.pollOp[i] %>

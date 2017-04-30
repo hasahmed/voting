@@ -1,0 +1,6 @@
+Voting app started on port 32908
+{ pollTitle: 'Favorite Hot Drink?',
+  displayQuestion: 'What is your favorite hot beverage?',
+  numPollOps: '4',
+  submit: 'Submit' }
+4
