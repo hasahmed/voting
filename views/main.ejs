@@ -1,10 +1,15 @@
 <% include header %>
-    <h1> Make Your Choice </h1>
-    <form action='/' method="post">
-       <input type='radio' value='tea' name='vote' checked> Tea
-       <br>
-       <input type='radio' value='coffee' name='vote'> Coffee
-       <br>
-       <input type='submit'>
-    </form>
+    <% if (entries.allPolls.length > 0) { %>
+        <h1> Make Your Choice </h1>
+        <form method='post' action='/viewPoll'>
+        <% for (var i = 0; i < entries.allPolls.length; i++) { %>
+            <p> <%= entries.allPolls[i].title %> </p>
+            <input hidden name='pollId' value= <%= entries.allPolls[i]._id %> >
+            <input type='submit' value='View Poll'>
+        </form>
+        <% } %>
+    <% } else { %>
+        <p> There are polls to vote on. To create a new poll click the admin
+        <br> link above <p>
+    <% } %>
 <% include footer %>

@@ -142,7 +142,11 @@ var poll1 = new Poll({
 /* the inital entry point of the application is a get request to root.
  as of now it simply renders the main.ejs view */
 app.get("/", function(req, res) {
- res.render("main");
+    Poll.find().exec(function(err, found){
+        if (err) return handleError(err);
+        entries.allPolls = found;
+        res.render("main");
+    });
 });
 
 
@@ -158,25 +162,42 @@ app.get('/users', function(req, res){
 
 
 
+
 /* load administrator page when a link to administrator is clicked */
-app.get('/admin', function(req, res){
+app.get('/admin', (req, res) =>{ //function(req, res){
     res.render('admin');
 });
 
 
-
-app.post('adminSaveNewPoll', function(req, res){
-    console.log(req.body);
+app.post('/adminSaveNewPoll', function(req, res){
     /*
-    var tmp = new Poll({
-        title: req.body.title,
-        displayQuestion: req.body.displayQuestion, 
-        options: req.body.pollOps 
-    });
+    var tmp = new Poll();
+    tmp.title = entries.pollTitle;
+    tmp.displayQuestion = entries.displayQuestion; 
+    tmp.options = entries.pollOp;
     */
-    res.send('done :)');
-    //res.render('home');
+    var tmp = new Poll({
+        title: entries.pollTitle,
+        displayQuestion: entries.displayQuestion, 
+        options: entries.pollOps 
+        });
+    tmp.save(function(err){
+        if (err) return console.log('there has been an error');
+        res.render('adminSavePollSuccess');
+    });
+    /*
+    var getThatShit = function(){
+    var query = Poll.find({title: 'lettuce'}).exec(function(err, found){
+        if (err) return handleError(err);
+        var a = found;
+        console.log(typeof a);
+        res.json(a[0].title);
+    });
+    };
+    */
 });
+
+
 
 
 /* get the post body values coming in from admin page
@@ -184,12 +205,21 @@ app.post('adminSaveNewPoll', function(req, res){
  to be the number of text fields on the next page that is
  loaded numPollOps: number Polling Options */
 app.post('/adminSubmitPollOps', function(req, res){
-    console.log(req.body);
     entries.numPollOps = req.body.numPollOps;
     entries.pollTitle = req.body.pollTitle;
-    console.log(entries.numPollOps);
+    entries.displayQuestion = req.body.displayQuestion;
     res.render('adminFeildFill');
 });
+
+
+app.post('/viewPoll', (req, res) =>{
+    Poll.find().exec(function(err, found){
+        if (err) return handleError(err);
+        entries.allPolls = found;
+        res.render("main");
+    });
+    
+})
 
 
 app.post('/adminReviewPollOps', function(req, res){
@@ -217,7 +247,6 @@ app.post('/', function(req, res){
 
 /* this is called when the form is submitted from main.ejs */
 app.post("/new-entry", function(req, res) {
-    console.log("taco", req.body);
     res.render('main');
     return;
  if (!req.body.vote) {
