@@ -118,6 +118,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var pollSchema = require(path.resolve(modelsPath, 'pollSchema'));
 
 
+/* getVoteCount: String -> int
+ * getVoteCount: Takes a string representing a possible vote option (in instance.options) and returns the corrisponding number of votes associated with that that instance */
+pollSchema.methods.getVoteCount = function(voteKey){
+    if(this.options.indexOf(voteKey) === -1)
+        throw new Error(`vote '${voteKey}' not found`);
+    return this.votes[this.options.indexOf(voteKey)];
+};
+
 
 
 /*
@@ -207,7 +215,7 @@ app.post('/adminSaveNewPoll', function(req, res){
     //addVote: function attempted to implemented, but failed
     //tmp.addVote('taco');
     tmp.save(function(err){
-        if (err) return console.log('there has been an error');
+        if (err) return handleError(err); 
         res.render('adminSavePollSuccess');
     });
     /*
@@ -260,12 +268,29 @@ app.post('/viewPoll', (req, res) =>{
 });
 
 
+/* updateVoteCount: Document, Vote -> Void
+ * updateVoteCount: This function is excusivly called inside of a Poll.find* function,
+    it takes updates a documents vote array to reflect the current vote that was
+    recieved. That is all this funciton does. The document still needs to be saved
+    using the mongoose api
+    */
+var updateVoteCount = function(voteObject, vote){
+    var optionsVoteIndex = voteObject.options.indexOf(vote);
+    if(optionsVoteIndex === -1) throw new Error(`'${vote}' does not exist`);
+    voteObject.votes[optionsVoteIndex]++; 
+}
+
 app.post('/savePollVote', (req, res) =>{
-    Poll.findById(req.body.pollId).exec(function(err, found){
-        if (err) return console.log(err);
-        res.send('vote NOT recorded! (because i havent gotten there yet)');
+    Poll.findById(req.body.pollId, function(err, found){
+        if (err) return handleError(err); 
+        updateVoteCount(found, req.body.vote);
+        found.markModified('votes');
+        console.log(found.getVoteCount(req.body.vote));
+        found.save(function(err, updatedThing){
+            if(err) return handleError(err);
+            res.render('voteSaved');
+        });
     });
-    //Poll.findById(req.body.pollId)
 });
 
 
