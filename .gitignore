@@ -1,5 +1,5 @@
 *.vim
-startmongo
+mongoshell
 nodemon
 mongo/
 *.txt

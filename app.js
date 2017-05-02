@@ -62,14 +62,6 @@ var userVoteSchema = require(path.resolve(modelsPath,'userVoteSchema'));
 
 
 
-/* pollSchema represents the meta data of the poll. here is the object:
-   {
-    title: String,
-    displayQuestion: String,
-    options: Array
-    }
-    */
-var pollSchema = require(path.resolve(modelsPath, 'pollSchema'));
 
 
 
@@ -113,18 +105,45 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 
+//mongo stuff
+
+/* pollSchema represents the meta data of the poll. here is the object:
+   {
+    title: String,
+    displayQuestion: String,
+    options: Array,
+    votes: Array
+    }
+    */
+var pollSchema = require(path.resolve(modelsPath, 'pollSchema'));
+
+
+
+
+/*
+pollSchema.methods.addVote = function(optionToVoteOn){
+    //get the array of voting options associated with this object
+    var optionsArray = this.model('poll').findById(this._id, '-_id options', function(err, found){
+    console.log(found);
+    });
+};
+*/
+
+
+
+
+/* Poll: model constructor */
+var Poll = mongoose.model('poll', pollSchema);
+
+
+
+
 /* the initial connection to our mongoose server. Tutorial is the 
  database selected for now. Will probably change */
 mongoose.connect('mongodb://silo.cs.indiana.edu:32909/voting');
 
 
 
-
-/* 
-    poll1: an instance of a poll for use in testing.
-    will assign it data and save it later.
- */
-var Poll = mongoose.model('poll', pollSchema);
 
 /*
 poll example:
@@ -170,17 +189,13 @@ app.get('/admin', (req, res) =>{ //function(req, res){
 
 
 app.post('/adminSaveNewPoll', function(req, res){
-    /*
-    var tmp = new Poll();
-    tmp.title = entries.pollTitle;
-    tmp.displayQuestion = entries.displayQuestion; 
-    tmp.options = entries.pollOp;
-    */
     var tmp = new Poll({
         title: entries.pollTitle,
         displayQuestion: entries.displayQuestion, 
-        options: entries.pollOps 
+        options: entries.pollOp
         });
+    //addVote: function attempted to implemented, but failed
+    //tmp.addVote('taco');
     tmp.save(function(err){
         if (err) return console.log('there has been an error');
         res.render('adminSavePollSuccess');
@@ -213,13 +228,19 @@ app.post('/adminSubmitPollOps', function(req, res){
 
 
 app.post('/viewPoll', (req, res) =>{
-    Poll.find().exec(function(err, found){
+    Poll.findById(req.body.pollId).exec(function(err, found){
         if (err) return handleError(err);
-        entries.allPolls = found;
-        res.render("main");
+        /* entries.warning: in the 'viewPoll.ejs' file there is 
+         an if statment that: when entries.warning is true prints an
+         error stating that you must select an option for the poll to go
+         through. The variable is set to true in the '/submitPollVote' rout */
+        entries.warning = false;
+        entries.currentPoll = found;
+        res.render('viewPoll');
     });
+    //res.render('main');
     
-})
+});
 
 
 app.post('/adminReviewPollOps', function(req, res){
