@@ -6,12 +6,15 @@
         <p> Error, you must select an option </p>
     <% } %>
     <form id='myform' method='post' action='/savePollVote'>
+        <input hidden value=<%= entries.currentPoll._id %> name='pollId'/>
         <% for(var i = 0; i < entries.currentPoll.options.length; i++) { %>
-            <input class='voteop' type='radio' value= <%= entries.currentPoll.options[i]; %> name='vote' > <%= entries.currentPoll.options[i]; %>
+            <input class='voteop' type='radio' value= <%= entries.currentPoll.options[i]; %> name='vote'/> <%= entries.currentPoll.options[i]; %>
             <br>
         <% } %>
-        <input type=button onclick='checkSubmit()' value='Submit'/>
+        <input type=button onclick='checkSubmit()' value='Vote'/>
     </form>
+
+
     <script>
         var checkSubmit = function(){
             var doc = document.getElementsByClassName('voteop');
@@ -23,7 +26,8 @@
                 return false;
             }
 
-            if(oneChecked(doc)) document.getElementById('myform').submit();
+            if(oneChecked(doc))
+                document.getElementById('myform').submit();
             else alert('You must make a choice before you submit your answer');
             return;
         }

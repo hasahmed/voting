@@ -183,16 +183,26 @@ app.get('/users', function(req, res){
 
 
 /* load administrator page when a link to administrator is clicked */
-app.get('/admin', (req, res) =>{ //function(req, res){
-    res.render('admin');
+app.get('/admin', (req, res) =>{ 
+    Poll.find().exec(function(err, found){
+        if (err) return handleError(err);
+        entries.allPolls = found;
+        res.render('admin');
+    });
+});
+
+app.get('/adminNewPoll', (req, res) =>{
+    res.render('adminNewPoll');
 });
 
 
 app.post('/adminSaveNewPoll', function(req, res){
+    var zeros = new Array(entries.pollOp.length).fill(0);
     var tmp = new Poll({
         title: entries.pollTitle,
         displayQuestion: entries.displayQuestion, 
-        options: entries.pollOp
+        options: entries.pollOp,
+        votes: zeros
         });
     //addVote: function attempted to implemented, but failed
     //tmp.addVote('taco');
@@ -212,7 +222,19 @@ app.post('/adminSaveNewPoll', function(req, res){
     */
 });
 
-
+app.post('/adminPollActions', (req, res) =>{
+    if(req.body.edit){
+        res.send(req.body.edit);
+    }
+    else if(req.body.remove){
+        Poll.remove({_id: req.body.pollId}, function(err, found){
+            if (err) return console.log(err);
+            //success
+            res.send(`poll ${req.body.pollTitle} has been deleted`);
+        })
+    }
+//    console.log(req.body);
+});
 
 
 /* get the post body values coming in from admin page
@@ -230,16 +252,20 @@ app.post('/adminSubmitPollOps', function(req, res){
 app.post('/viewPoll', (req, res) =>{
     Poll.findById(req.body.pollId).exec(function(err, found){
         if (err) return handleError(err);
-        /* entries.warning: in the 'viewPoll.ejs' file there is 
-         an if statment that: when entries.warning is true prints an
-         error stating that you must select an option for the poll to go
-         through. The variable is set to true in the '/submitPollVote' rout */
-        entries.warning = false;
         entries.currentPoll = found;
         res.render('viewPoll');
     });
     //res.render('main');
     
+});
+
+
+app.post('/savePollVote', (req, res) =>{
+    Poll.findById(req.body.pollId).exec(function(err, found){
+        if (err) return console.log(err);
+        res.send('vote NOT recorded! (because i havent gotten there yet)');
+    });
+    //Poll.findById(req.body.pollId)
 });
 
 

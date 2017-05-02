@@ -1,0 +1,39 @@
+<% include adminHeader %>
+    <p>Select the options you would like for your new poll </p> 
+    <form method='post' action='/adminSubmitPollOps'>
+    <table>
+    <tr>
+        <td>
+            <p>Poll Title</p>
+        </td>
+        <td>
+            <input type='text' name='pollTitle' value='' placeholder='Favorite Hot Drink?'>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <p>Poll Question</p>
+        </td>
+        <td>
+            <input type='text' name='displayQuestion' value='' placeholder='Whats your favorite hot drink?'>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            <p>Number of poll options</p>
+        </td>
+        <td>
+            <select name='numPollOps'>
+                <% for (var i = 2; i <= 100; i++){ %>
+                <option value=<%=i %> > <%= i %> </option>
+                <% } %>
+            </select>
+        </td>
+    </tr>
+    </table>
+    <input type='submit' name='submit'>
+    </form>
+<% include footer %>
