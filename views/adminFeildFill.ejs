@@ -1,6 +1,6 @@
 <% include adminHeader %>
     <h1>Fill in the poll options</h1>
-    <form method='post' action='/adminReviewPollOps'>
+    <form id='myForm' method='post' action='/adminReviewPollOps'>
     <table>
     <% for(var i = 0; i < entries.numPollOps; i++) { %>
         <tr>
@@ -14,6 +14,31 @@
     <% } %>
     <br>
     </table>
-    <input type='submit' name='submit'>
+    <input type='button' onclick='checkRepeates()' value='Submit'/>
+    <!-- <input type='submit' name='submit'> -->
     </form>
+    
+    <script>
+        var hasDupes = function(arr){
+            dupes = 0;
+            for(var i = 0; i < arr.length; i ++){
+                var tmp = arr[i];
+                for(var j = 0; j < arr.length; j++){
+                    if(arr[j] === tmp) dupes++;
+                    if(dupes >= 2) return true;
+                }
+                dupes = 0;
+            }
+            return false;
+        }
+        var checkRepeates = function(){
+            var oppValues = [];
+            var pollOps = document.getElementsByName('pollOp[]');
+            for(var i = 0; i < pollOps.length; i++){
+                oppValues.push(pollOps[i].value.trim());
+            }
+            if(hasDupes(oppValues)) alert('Your polling options must all be different');
+            else document.getElementById('myForm').submit();
+        };
+    </script>
 <% include footer %>
