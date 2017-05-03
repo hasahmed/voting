@@ -126,18 +126,27 @@ pollSchema.methods.getVoteCount = function(voteKey){
     return this.votes[this.options.indexOf(voteKey)];
 };
 
-
-
-/*
-pollSchema.methods.addVote = function(optionToVoteOn){
-    //get the array of voting options associated with this object
-    var optionsArray = this.model('poll').findById(this._id, '-_id options', function(err, found){
-    console.log(found);
-    });
+pollSchema.methods.getDisplayObject = function(){
+    var displayObj = {};
+    for(var i = 0; i < this.options.length; i++){
+        displayObj[`${this.options[i]}`] = this.votes[i];
+    }
+    console.log(displayObj);
+    return displayObj;
 };
-*/
 
-
+/* instance.addVote: String vote -> void
+ * instance.addVote: takes a string representing the vote that has been cast
+ * updates the array instance.votes according to that vote. If the string
+ * representing the vote isn't found in instances.options then an error is thrown
+ * */
+pollSchema.methods.addVote = function(vote){        
+    var optionsVoteIndex = this.options.indexOf(vote);
+    if(optionsVoteIndex === -1) throw new Error(`'${vote}' does not exist`);
+    this.votes[optionsVoteIndex]++; 
+    console.log(vote);
+    this.markModified('votes');
+};
 
 
 /* Poll: model constructor */
@@ -158,7 +167,8 @@ poll example:
 var poll1 = new Poll({
     title: 'Favorite Hot Drink',
     displayQuestion: 'What is your favorite hot beverage?',
-    options: ['tea', 'coffee', 'hot chocolate']
+    options: ['tea', 'coffee', 'hot chocolate'],
+    votes: [1, 5, 0]
 });
 */
 
@@ -230,16 +240,22 @@ app.post('/adminSaveNewPoll', function(req, res){
     */
 });
 
+
 app.post('/adminPollActions', (req, res) =>{
-    if(req.body.edit){
-        res.send(req.body.edit);
+    if(req.body.viewPollResults){
+       Poll.findById(req.body.pollId).exec(function(err, found){
+           entries.keys = found.options;
+           entries.displayObj = found.getDisplayObject();
+           res.render('adminDispPollResults');
+       });
     }
-    else if(req.body.remove){
+    else if(req.body.removePoll){
         Poll.remove({_id: req.body.pollId}, function(err, found){
             if (err) return console.log(err);
             //success
-            res.send(`poll ${req.body.pollTitle} has been deleted`);
-        })
+            entries.message = `poll has been deleted`; 
+            res.render('renderMessage');
+        });
     }
 //    console.log(req.body);
 });
@@ -275,6 +291,7 @@ app.post('/viewPoll', (req, res) =>{
     using the mongoose api
     */
 var updateVoteCount = function(voteObject, vote){
+    console.log(vote);
     var optionsVoteIndex = voteObject.options.indexOf(vote);
     if(optionsVoteIndex === -1) throw new Error(`'${vote}' does not exist`);
     voteObject.votes[optionsVoteIndex]++; 
@@ -283,9 +300,7 @@ var updateVoteCount = function(voteObject, vote){
 app.post('/savePollVote', (req, res) =>{
     Poll.findById(req.body.pollId, function(err, found){
         if (err) return handleError(err); 
-        updateVoteCount(found, req.body.vote);
-        found.markModified('votes');
-        console.log(found.getVoteCount(req.body.vote));
+        found.addVote(req.body.vote);
         found.save(function(err, updatedThing){
             if(err) return handleError(err);
             res.render('voteSaved');

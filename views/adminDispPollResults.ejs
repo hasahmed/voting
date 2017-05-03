@@ -1,0 +1,14 @@
+<% include adminHeader %>
+    <table>
+        <% for(var i = 0; i < entries.keys.length; i++){ %>
+            <tr>
+                <td>
+                    <%= entries.keys[i] %>
+                </td>
+                <td>
+                    <%= entries.displayObj[entries.keys[i]] %>
+                </td>
+            </tr>
+        <% } %>
+    </table>
+<% include footer %>
