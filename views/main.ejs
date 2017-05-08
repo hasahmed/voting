@@ -3,10 +3,12 @@
         <h1>All Polls</h1>
         <% for (var i = 0; i < entries.allPolls.length; i++) { %>
             <form method='post' action='/viewPoll'>
-                <p> <%= entries.allPolls[i].title %> </p>
+                <label for='submit'> <%= entries.allPolls[i].title %>: </label>
+                <!-- <p> <%= entries.allPolls[i].title %> </p> -->
                 <input hidden name='pollId' value= <%= entries.allPolls[i]._id %> >
-                <input type='submit' value='View Poll'>
+                <input class='form-control' type='submit' value='View Poll'>
             </form>
+            <br>
         <% } %>
     <% } else { %>
         <p>There are no polls to vote on at this time</p>

@@ -3,12 +3,14 @@
         <h1> All Polls </h1>
         <% for (var i = 0; i < entries.allPolls.length; i++) { %>
             <form id='myForm' method='post' action='/adminPollActions'>
-                <p> <%= entries.allPolls[i].title %> </p>
+                <label for='submit'> <%= entries.allPolls[i].title %>: </label>
+                <!-- <p> <%= entries.allPolls[i].title %> </p> -->
                 <input hidden name='pollId' value='<%= entries.allPolls[i]._id %>' >
                 <input hidden name='pollTitle' value='<%= entries.allPolls[i].title%>'>
-                <input type='submit' value='View Results' name='viewPollResults'/>
-                <input type='submit' value='Delete Poll' name='removePoll' onclick='confirmDelete(2)'/> 
+                <input class='form-control' type='submit' value='View Results' name='viewPollResults'/>
+                <input class='form-control' type='submit' value='Delete Poll' name='removePoll' onclick='confirmDelete(2)'/> 
                <!-- <input id='<%=`submit${i}`%>' type='button' name='removePoll' onclick='confirmDelete(this.id)' value='Delete Poll'/> -->
+                <br>
             </form>
         <% } %>
     <% } else { %>
