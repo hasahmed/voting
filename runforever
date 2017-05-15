@@ -1,0 +1,2 @@
+#!/usr/bin/ruby
+system("./node_modules/pm2/bin/pm2 start app.js")
