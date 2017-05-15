@@ -1,0 +1,1 @@
+numactl --interleave=all mongod -port 32909 --dbpath mongodata
